@@ -6,8 +6,6 @@ FROM vendor_booth_assignments
 GROUP BY vendor_id;
 
 
-
-
 /* 2. The Farmer’s Market Customer Appreciation Committee wants to give a bumper 
 sticker to everyone who has ever spent more than $2000 at the market. Write a query that generates a list 
 of customers for them to give stickers to, sorted by last name, then first name. 
@@ -34,12 +32,10 @@ When inserting the new vendor, you need to appropriately align the columns to be
 -> To insert the new row use VALUES, specifying the value you want for each column:
 VALUES(col1,col2,col3,col4,col5) 
 */
--- Create temporary table from the original vendor table
+
 DROP TABLE IF EXISTS temp.new_vendor;
 CREATE TEMPORARY TABLE temp.new_vendor AS
 SELECT * FROM vendor;
-
--- Insert the new vendor into the temporary table
 INSERT INTO temp.new_vendor (vendor_id, vendor_name, vendor_type, vendor_owner_first_name, vendor_owner_last_name)
 VALUES (10, 'Thomas Superfood Store', 'Fresh Focused', 'Thomas', 'Rosenthal');
 SELECT * FROM temp.new_vendor;

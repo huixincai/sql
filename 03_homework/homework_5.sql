@@ -9,6 +9,33 @@ Think a bit about the row counts: how many distinct vendors, product names are t
 How many customers are there (y). 
 Before your final group by you should have the product of those two queries (x*y).  */
 
+DROP TABLE IF EXISTS sales_by_customer;
+
+CREATE TEMP TABLE sales_by_customer AS
+    SELECT 
+        DISTINCT vi.product_id,
+        p.product_name,
+        v.vendor_name, 
+        c.customer_id,
+        c.customer_first_name,
+        c.customer_last_name,
+        vi.original_price,
+        (vi.original_price * 5) AS product_by_5
+    FROM product AS p 
+    CROSS JOIN vendor_inventory AS vi USING(product_id)
+    CROSS JOIN vendor AS v USING(vendor_id)
+    CROSS JOIN customer AS c;
+
+SELECT 
+    vendor_name,
+    product_name,
+    original_price,
+    SUM(sales_by_customer.product_by_5) AS sales_by_product
+FROM sales_by_customer
+GROUP BY vendor_name, product_name, original_price
+ORDER BY vendor_name;
+
+
 
 
 -- INSERT
@@ -17,10 +44,17 @@ This table will contain only products where the `product_qty_type = 'unit'`.
 It should use all of the columns from the product table, as well as a new column for the `CURRENT_TIMESTAMP`.  
 Name the timestamp column `snapshot_timestamp`. */
 
+DROP TABLE IF EXISTS product_units;
+CREATE TABLE product_units AS
+SELECT *, CURRENT_TIMESTAMP AS snapshot_timestamp
+FROM product
+WHERE product_qty_type = 'unit';
 
 
 /*2. Using `INSERT`, add a new row to the product_units table (with an updated timestamp). 
 This can be any product you desire (e.g. add another record for Apple Pie). */
+INSERT INTO product_units (product_id, product_name, product_size, product_category_id, product_qty_type, snapshot_timestamp)
+VALUES (301, 'Apple Pie', '1 lb', 1, 'unit', CURRENT_TIMESTAMP);
 
 
 
@@ -28,6 +62,10 @@ This can be any product you desire (e.g. add another record for Apple Pie). */
 /* 1. Delete the older record for the whatever product you added. 
 
 HINT: If you don't specify a WHERE clause, you are going to have a bad time.*/
+DELETE FROM product_units
+WHERE product_id = 301
+AND snapshot_timestamp < (SELECT MAX(snapshot_timestamp) FROM product_units WHERE product_id = 301);
+
 
 
 
@@ -49,3 +87,20 @@ Finally, make sure you have a WHERE statement to update the right row,
 When you have all of these components, you can run the update statement. */
 
 
+ALTER TABLE product_units
+ADD current_quantity INT;
+DROP TABLE IF EXISTS last_quantity_table;
+
+CREATE TEMP TABLE last_quantity_table AS
+SELECT 
+    product_id,
+    MAX(market_date) AS max_market_date,
+    quantity
+FROM vendor_inventory
+GROUP BY product_id;
+UPDATE product_units
+SET current_quantity = (
+    SELECT COALESCE(last_quantity_table.quantity, 0)
+    FROM last_quantity_table
+    WHERE last_quantity_table.product_id = product_units.product_id
+);

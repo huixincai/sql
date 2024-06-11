@@ -5,9 +5,11 @@ Create a logical model for a small bookstore. 📚
 
 At the minimum it should have employee, order, sales, customer, and book entities (tables). Determine sensible column and table design based on what you know about these concepts. Keep it simple, but work out sensible relationships to keep tables reasonably sized. Include a date table. There are several tools online you can use, I'd recommend [_Draw.io_](https://www.drawio.com/) or [_LucidChart_](https://www.lucidchart.com/pages/).
 
+![bookstore.drawio.png](./bookstore.drawio.png)
 ## Question 2
 We want to create employee shifts, splitting up the day into morning and evening. Add this to the ERD.
 
+![bookstore-q2.drawio.png](./bookstore-q2.drawio.png)
 ## Question 3
 The store wants to keep customer addresses. Propose two architectures for the CUSTOMER_ADDRESS table, one that will retain changes, and another that will overwrite. Which is type 1, which is type 2?
 
@@ -17,6 +19,20 @@ Bonus: Are there privacy implications to this, why or why not?
 ```
 Your answer...
 ```
+Architecture 1 Type 1 : Overwrite Changes 
+CustomerAddress (Overwrite)
+CustomerID (FK), Address, City, State, ZipCode, Country
+In this architecture, any update to the customer's address will overwrite the existing address.
+
+Architecture 2 Type 2: Retain Changes 
+CustomerAddress (Retain)
+AddressID (PK), CustomerID (FK), Address, City, State, ZipCode, Country, StartDate, EndDate, IsCurrent
+In this architecture, a new record is created for each address change. The IsCurrent column helps identify the current address.
+
+Privacy Implications
+Type 1 (Overwrite): Less privacy concern since historical data is not retained. However, previous address information is lost.
+Type 2 (Retain): More privacy concern since historical address data is retained. Ensuring data security and compliance with privacy regulations is critical.
+
 
 ## Question 4
 Review the AdventureWorks Schema [here](https://i.stack.imgur.com/LMu4W.gif)
@@ -25,6 +41,13 @@ Highlight at least two differences between it and your ERD. Would you change any
 ```
 Your answer...
 ```
+Differences between AdventureWorks and my ERD:
+
+Complexity and Granularity: The AdventureWorks schema is more complex, with more detailed tables and relationships, such as separating customer address and contact details into different tables. My ERD is simpler, combining customer details into fewer tables.
+Product and Inventory Management: AdventureWorks includes detailed tables for product and inventory management, such as Product, ProductCategory, and Inventory. My ERD focuses more on the basic entities of a small bookstore without detailed inventory tracking.
+Reflection:
+To enhance my ERD, I could consider separating customer contact details and addresses into different tables for better data normalization and scalability. Additionally, adding more detailed inventory management could help in managing the stock more efficiently.
+
 
 # Criteria
 
